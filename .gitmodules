@@ -1,0 +1,3 @@
+[submodule "protos"]
+	path = protos
+	url = git@github.com:Umarov7/car_wash_protos.git
