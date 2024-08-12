@@ -50,7 +50,7 @@ func ValidateRefreshToken(cfg *config.Config, tokenStr string) (bool, error) {
 	}
 
 	if token != tokenStr {
-		return false, nil
+		return false, errors.New("invalid refresh token")
 	}
 
 	return true, nil
