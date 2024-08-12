@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type UserClient interface {
 	GetProfile(ctx context.Context, in *ID, opts ...grpc.CallOption) (*Profile, error)
 	UpdateProfile(ctx context.Context, in *NewData, opts ...grpc.CallOption) (*UpdateResp, error)
+	ValidateUser(ctx context.Context, in *ID, opts ...grpc.CallOption) (*Void, error)
 }
 
 type userClient struct {
@@ -52,12 +53,22 @@ func (c *userClient) UpdateProfile(ctx context.Context, in *NewData, opts ...grp
 	return out, nil
 }
 
+func (c *userClient) ValidateUser(ctx context.Context, in *ID, opts ...grpc.CallOption) (*Void, error) {
+	out := new(Void)
+	err := c.cc.Invoke(ctx, "/user.User/ValidateUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
 type UserServer interface {
 	GetProfile(context.Context, *ID) (*Profile, error)
 	UpdateProfile(context.Context, *NewData) (*UpdateResp, error)
+	ValidateUser(context.Context, *ID) (*Void, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -70,6 +81,9 @@ func (UnimplementedUserServer) GetProfile(context.Context, *ID) (*Profile, error
 }
 func (UnimplementedUserServer) UpdateProfile(context.Context, *NewData) (*UpdateResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateProfile not implemented")
+}
+func (UnimplementedUserServer) ValidateUser(context.Context, *ID) (*Void, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateUser not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -120,6 +134,24 @@ func _User_UpdateProfile_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_ValidateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).ValidateUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.User/ValidateUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).ValidateUser(ctx, req.(*ID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateProfile",
 			Handler:    _User_UpdateProfile_Handler,
+		},
+		{
+			MethodName: "ValidateUser",
+			Handler:    _User_ValidateUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
