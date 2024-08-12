@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProvidersClient interface {
+	CreateProvider(ctx context.Context, in *NewProvider, opts ...grpc.CallOption) (*CreateResp, error)
 	SearchProviders(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*SearchResp, error)
 }
 
@@ -31,6 +32,15 @@ type providersClient struct {
 
 func NewProvidersClient(cc grpc.ClientConnInterface) ProvidersClient {
 	return &providersClient{cc}
+}
+
+func (c *providersClient) CreateProvider(ctx context.Context, in *NewProvider, opts ...grpc.CallOption) (*CreateResp, error) {
+	out := new(CreateResp)
+	err := c.cc.Invoke(ctx, "/providers.Providers/CreateProvider", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *providersClient) SearchProviders(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*SearchResp, error) {
@@ -46,6 +56,7 @@ func (c *providersClient) SearchProviders(ctx context.Context, in *Filter, opts 
 // All implementations must embed UnimplementedProvidersServer
 // for forward compatibility
 type ProvidersServer interface {
+	CreateProvider(context.Context, *NewProvider) (*CreateResp, error)
 	SearchProviders(context.Context, *Filter) (*SearchResp, error)
 	mustEmbedUnimplementedProvidersServer()
 }
@@ -54,6 +65,9 @@ type ProvidersServer interface {
 type UnimplementedProvidersServer struct {
 }
 
+func (UnimplementedProvidersServer) CreateProvider(context.Context, *NewProvider) (*CreateResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateProvider not implemented")
+}
 func (UnimplementedProvidersServer) SearchProviders(context.Context, *Filter) (*SearchResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchProviders not implemented")
 }
@@ -68,6 +82,24 @@ type UnsafeProvidersServer interface {
 
 func RegisterProvidersServer(s grpc.ServiceRegistrar, srv ProvidersServer) {
 	s.RegisterService(&Providers_ServiceDesc, srv)
+}
+
+func _Providers_CreateProvider_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NewProvider)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProvidersServer).CreateProvider(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/providers.Providers/CreateProvider",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProvidersServer).CreateProvider(ctx, req.(*NewProvider))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Providers_SearchProviders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -95,6 +127,10 @@ var Providers_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "providers.Providers",
 	HandlerType: (*ProvidersServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateProvider",
+			Handler:    _Providers_CreateProvider_Handler,
+		},
 		{
 			MethodName: "SearchProviders",
 			Handler:    _Providers_SearchProviders_Handler,
