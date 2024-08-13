@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServicesClient interface {
 	CreateService(ctx context.Context, in *NewService, opts ...grpc.CallOption) (*CreateResp, error)
+	GetService(ctx context.Context, in *ID, opts ...grpc.CallOption) (*Service, error)
 	UpdateService(ctx context.Context, in *NewData, opts ...grpc.CallOption) (*UpdateResp, error)
 	DeleteService(ctx context.Context, in *ID, opts ...grpc.CallOption) (*Void, error)
 	ListServices(ctx context.Context, in *Pagination, opts ...grpc.CallOption) (*ServicesList, error)
@@ -40,6 +41,15 @@ func NewServicesClient(cc grpc.ClientConnInterface) ServicesClient {
 func (c *servicesClient) CreateService(ctx context.Context, in *NewService, opts ...grpc.CallOption) (*CreateResp, error) {
 	out := new(CreateResp)
 	err := c.cc.Invoke(ctx, "/services.Services/CreateService", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *servicesClient) GetService(ctx context.Context, in *ID, opts ...grpc.CallOption) (*Service, error) {
+	out := new(Service)
+	err := c.cc.Invoke(ctx, "/services.Services/GetService", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +97,7 @@ func (c *servicesClient) SearchServices(ctx context.Context, in *Filter, opts ..
 // for forward compatibility
 type ServicesServer interface {
 	CreateService(context.Context, *NewService) (*CreateResp, error)
+	GetService(context.Context, *ID) (*Service, error)
 	UpdateService(context.Context, *NewData) (*UpdateResp, error)
 	DeleteService(context.Context, *ID) (*Void, error)
 	ListServices(context.Context, *Pagination) (*ServicesList, error)
@@ -100,6 +111,9 @@ type UnimplementedServicesServer struct {
 
 func (UnimplementedServicesServer) CreateService(context.Context, *NewService) (*CreateResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateService not implemented")
+}
+func (UnimplementedServicesServer) GetService(context.Context, *ID) (*Service, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetService not implemented")
 }
 func (UnimplementedServicesServer) UpdateService(context.Context, *NewData) (*UpdateResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateService not implemented")
@@ -140,6 +154,24 @@ func _Services_CreateService_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServicesServer).CreateService(ctx, req.(*NewService))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Services_GetService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServicesServer).GetService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/services.Services/GetService",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServicesServer).GetService(ctx, req.(*ID))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -226,6 +258,10 @@ var Services_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateService",
 			Handler:    _Services_CreateService_Handler,
+		},
+		{
+			MethodName: "GetService",
+			Handler:    _Services_GetService_Handler,
 		},
 		{
 			MethodName: "UpdateService",
