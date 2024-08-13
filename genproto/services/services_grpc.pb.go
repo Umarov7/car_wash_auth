@@ -28,6 +28,7 @@ type ServicesClient interface {
 	DeleteService(ctx context.Context, in *ID, opts ...grpc.CallOption) (*Void, error)
 	ListServices(ctx context.Context, in *Pagination, opts ...grpc.CallOption) (*ServicesList, error)
 	SearchServices(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*SearchResp, error)
+	GetPopularServices(ctx context.Context, in *Void, opts ...grpc.CallOption) (*SearchResp, error)
 }
 
 type servicesClient struct {
@@ -92,6 +93,15 @@ func (c *servicesClient) SearchServices(ctx context.Context, in *Filter, opts ..
 	return out, nil
 }
 
+func (c *servicesClient) GetPopularServices(ctx context.Context, in *Void, opts ...grpc.CallOption) (*SearchResp, error) {
+	out := new(SearchResp)
+	err := c.cc.Invoke(ctx, "/services.Services/GetPopularServices", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServicesServer is the server API for Services service.
 // All implementations must embed UnimplementedServicesServer
 // for forward compatibility
@@ -102,6 +112,7 @@ type ServicesServer interface {
 	DeleteService(context.Context, *ID) (*Void, error)
 	ListServices(context.Context, *Pagination) (*ServicesList, error)
 	SearchServices(context.Context, *Filter) (*SearchResp, error)
+	GetPopularServices(context.Context, *Void) (*SearchResp, error)
 	mustEmbedUnimplementedServicesServer()
 }
 
@@ -126,6 +137,9 @@ func (UnimplementedServicesServer) ListServices(context.Context, *Pagination) (*
 }
 func (UnimplementedServicesServer) SearchServices(context.Context, *Filter) (*SearchResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchServices not implemented")
+}
+func (UnimplementedServicesServer) GetPopularServices(context.Context, *Void) (*SearchResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPopularServices not implemented")
 }
 func (UnimplementedServicesServer) mustEmbedUnimplementedServicesServer() {}
 
@@ -248,6 +262,24 @@ func _Services_SearchServices_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Services_GetPopularServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Void)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServicesServer).GetPopularServices(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/services.Services/GetPopularServices",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServicesServer).GetPopularServices(ctx, req.(*Void))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Services_ServiceDesc is the grpc.ServiceDesc for Services service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -278,6 +310,10 @@ var Services_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SearchServices",
 			Handler:    _Services_SearchServices_Handler,
+		},
+		{
+			MethodName: "GetPopularServices",
+			Handler:    _Services_GetPopularServices_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
