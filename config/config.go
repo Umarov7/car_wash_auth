@@ -39,8 +39,8 @@ func Load() *Config {
 		REDIS_PASSWORD: cast.ToString(coalesce("REDIS_PASSWORD", "")),
 		REDIS_DB:       cast.ToInt(coalesce("REDIS_DB", "0")),
 
-		AUTH_ROUTER_PORT:  cast.ToString(coalesce("AUTH_ROUTER_PORT", ":8081")),
-		AUTH_SERVICE_PORT: cast.ToString(coalesce("AUTH_SERVICE_PORT", ":50051")),
+		AUTH_ROUTER_PORT:  cast.ToString(coalesce("AUTH_ROUTER_PORT", "auth:8081")),
+		AUTH_SERVICE_PORT: cast.ToString(coalesce("AUTH_SERVICE_PORT", "auth:50051")),
 		ACCESS_TOKEN_KEY:  cast.ToString(coalesce("ACCESS_TOKEN_KEY", "key")),
 		REFRESH_TOKEN_KEY: cast.ToString(coalesce("REFRESH_TOKEN_KEY", "key")),
 	}
