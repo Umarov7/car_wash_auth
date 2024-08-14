@@ -35,7 +35,7 @@ func Load() *Config {
 		DB_NAME:     cast.ToString(coalesce("DB_NAME", "postgres")),
 		DB_PASSWORD: cast.ToString(coalesce("DB_PASSWORD", "password")),
 
-		REDIS_ADDRESS:  cast.ToString(coalesce("REDIS_ADDRESS", "localhost:6379")),
+		REDIS_ADDRESS:  cast.ToString(coalesce("REDIS_ADDRESS", "redis:6379")),
 		REDIS_PASSWORD: cast.ToString(coalesce("REDIS_PASSWORD", "")),
 		REDIS_DB:       cast.ToInt(coalesce("REDIS_DB", "0")),
 
