@@ -12,7 +12,7 @@ import (
 
 func Repo() storage.IUserStorage {
 	db, err := ConnectDB(&config.Config{
-		DB_HOST:     "localhost",
+		DB_HOST:     "postgres",
 		DB_PORT:     "5432",
 		DB_USER:     "postgres",
 		DB_PASSWORD: "root",
