@@ -29,7 +29,7 @@ func Load() *Config {
 	}
 
 	return &Config{
-		DB_HOST:     cast.ToString(coalesce("DB_HOST", "postgres")),
+		DB_HOST:     cast.ToString(coalesce("DB_HOST", "postgres-db")),
 		DB_PORT:     cast.ToString(coalesce("DB_PORT", "5432")),
 		DB_USER:     cast.ToString(coalesce("DB_USER", "postgres")),
 		DB_NAME:     cast.ToString(coalesce("DB_NAME", "postgres")),
